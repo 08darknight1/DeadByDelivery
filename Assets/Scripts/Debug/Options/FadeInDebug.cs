@@ -3,27 +3,23 @@ using UnityEngine.UI;
 
 public class FadeInDebug : DebugOption
 {
-    private GameObject FadePanel;
+    private GameController GameControllerObj;
 
     public FadeInDebug(): base("FadeInDebug"){}
 
     public override void OptionSetup()
     {
-        Activated = true;
-        FadePanel = GameObject.Find("FadePanel");
+        GameControllerObj = GameObject.Find("GameController").GetComponent<GameController>();
+        base.OptionSetup();
     }
 
     public override void OptionExec()
     {
-        if(FadePanel != null)
+        if(GameControllerObj != null)
         {
-            //Debug.Log("During FadeIn, Alpha Image value: " + FadePanel.GetComponent<Image>().color.a);
-            if(FadePanel.GetComponent<Image>().color.a < 1)
-            {
-                var newAlpha = FadePanel.GetComponent<Image>().color.a + (0.25f * Time.deltaTime);
-                FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, newAlpha);
-            }
-            else
+            GameControllerObj.UseFadePanel(true);
+
+            if(GameControllerObj.UseFadePanel(true))
             {
                 OptionQuit();
             }
@@ -32,7 +28,7 @@ public class FadeInDebug : DebugOption
 
     public override void OptionQuit()
     {
-        FadePanel = null;
+        GameControllerObj = null;
         base.OptionQuit();
     }
 }

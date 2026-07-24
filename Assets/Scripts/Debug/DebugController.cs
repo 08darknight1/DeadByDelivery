@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 using UnityEngine.UI;
 
 public class DebugController : MonoBehaviour
@@ -13,7 +13,7 @@ public class DebugController : MonoBehaviour
 
     private GameObject DebugMenu;
 
-    public GameObject[] DebugOptions;
+    public List<DebugOption> DebugOptions = new List<DebugOption>();
 
     void Start()
     {
@@ -21,14 +21,13 @@ public class DebugController : MonoBehaviour
         {
             DebugEnabled = true;
 
-            for (int x = 0; x < DebugOptions.Length; x++)
+            for (int x = 0; x < DebugOptions.Count; x++)
             {
-                DebugOptions[x].GetComponent<DebugOption>().OptionQuit();
+                DebugOptions[x].OptionQuit();
             }
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         if(DebugEnabled){
@@ -41,7 +40,7 @@ public class DebugController : MonoBehaviour
             {
                 OptionsIndex++;
 
-                if(OptionsIndex >= DebugOptions.Length)
+                if(OptionsIndex >= DebugOptions.Count)
                 {
                     OptionsIndex = 0;
                 }
@@ -64,7 +63,7 @@ public class DebugController : MonoBehaviour
         {   
             var textObj = GameObject.Find("OptionNameForDebug").GetComponentInParent<TextMeshProUGUI>();
 
-            var currentOpt = DebugOptions[OptionsIndex].GetComponent<DebugOption>();
+            var currentOpt = DebugOptions[OptionsIndex];
 
             textObj.text = "Debug Menu - Option [" + OptionsIndex + "] - " + currentOpt.OptionReturnName() + " - " + currentOpt.OptionReturnActivation();
         }
@@ -82,6 +81,8 @@ public class DebugController : MonoBehaviour
 
             DebugMenu.AddComponent<CanvasScaler>();
             DebugMenu.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            DebugMenu.GetComponent<CanvasScaler>().referenceResolution = new Vector2(1366, 768);
+            DebugMenu.GetComponent<CanvasScaler>().screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
 
             var OptionName = new GameObject();
 
@@ -89,11 +90,13 @@ public class DebugController : MonoBehaviour
 
             OptionName.transform.parent = DebugMenu.transform;
 
+            OptionName.transform.localPosition = new Vector3(-500, -250, 0);
+
             OptionName.AddComponent<TextMeshProUGUI>();
 
-            OptionName.GetComponent<TextMeshProUGUI>().margin = new Vector4(0, 0, -300, 0);
+            OptionName.GetComponent<TextMeshProUGUI>().margin = new Vector4(0, 0, -750, 0);
 
-            OptionName.GetComponent<TextMeshProUGUI>().fontSize = 20;      
+            OptionName.GetComponent<TextMeshProUGUI>().fontSize = 40;      
 
             var currentPos = OptionName.transform.position;
 
@@ -109,7 +112,7 @@ public class DebugController : MonoBehaviour
     {
         if (DebugMenu != null && Input.GetKeyDown(KeyCode.F3))
         {
-            var currentOpt = DebugOptions[OptionsIndex].GetComponent<DebugOption>();
+            var currentOpt = DebugOptions[OptionsIndex];
 
             if (currentOpt.OptionReturnActivation())
             {
@@ -124,11 +127,11 @@ public class DebugController : MonoBehaviour
 
     private void RunDebugOptions()
     {
-        if(DebugOptions.Length > 0)
+        if(DebugOptions.Count > 0)
         {
-            for(int x = 0; x < DebugOptions.Length; x++)
+            for(int x = 0; x < DebugOptions.Count; x++)
             {
-                var currentOpt = DebugOptions[x].GetComponent<DebugOption>();
+                var currentOpt = DebugOptions[x];
 
                 if (currentOpt.OptionReturnActivation())
                 {

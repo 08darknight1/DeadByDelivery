@@ -3,7 +3,7 @@ using UnityEngine;
 [System.Serializable]
 public class DebugOption : MonoBehaviour
 {
-    protected string Name;
+    [SerializeField] protected string Name;
 
     protected bool Activated;
 
