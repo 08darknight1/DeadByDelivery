@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class PlayTestDialogDebug : DebugOption
 {
-    private DialogHandler DialogHandlerObj;
-
     public PlayTestDialogDebug(): base("PlayTestDialogueDebug"){}
+
+    private DialogHandler DialogHandlerObj;
 
     private bool DialogActivated;
     

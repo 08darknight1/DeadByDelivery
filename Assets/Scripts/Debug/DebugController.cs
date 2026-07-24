@@ -20,11 +20,11 @@ public class DebugController : MonoBehaviour
         if (Application.isEditor || Debug.isDebugBuild)
         {
             DebugEnabled = true;
+        }
 
-            for (int x = 0; x < DebugOptions.Count; x++)
-            {
-                DebugOptions[x].OptionQuit();
-            }
+        for (int x = 0; x < DebugOptions.Count; x++)
+        {
+            DebugOptions[x].OptionQuit();
         }
     }
 
@@ -94,7 +94,7 @@ public class DebugController : MonoBehaviour
 
             OptionName.AddComponent<TextMeshProUGUI>();
 
-            OptionName.GetComponent<TextMeshProUGUI>().margin = new Vector4(0, 0, -750, 0);
+            OptionName.GetComponent<TextMeshProUGUI>().margin = new Vector4(0, 0, -850, 0);
 
             OptionName.GetComponent<TextMeshProUGUI>().fontSize = 40;      
 
