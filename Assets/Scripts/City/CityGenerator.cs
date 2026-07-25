@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class CityGenerator : MonoBehaviour
@@ -39,6 +40,7 @@ public class CityGenerator : MonoBehaviour
         City.name = "City";
 
         var numberForObj = 0;
+        var numberForBlock = 0;
 
         var positionIncrement = 40;
 
@@ -59,10 +61,20 @@ public class CityGenerator : MonoBehaviour
 
         for(int x = 0; x < CityBlocksList.Count; x++)
         {
+            var newBlock = new GameObject();
+
+            newBlock.transform.parent = City.transform;
+
+            newBlock.name = "Block" + numberForBlock.ToString();
+
             var tilesToCreate = CityBlocksList[x].ReturnCityBlockTiles();
 
             for(int y = 0; y < tilesToCreate.Length; y++) //SEMPRE VAI SER 9
             {
+
+            Debug.Log("POSXMULT: " + posXMultiplier + " | OGVALUE: " + posXMultiplierOG +
+                 " ||| POSYMULT: " + posYMultiplier + " | OGVALUE: " + posYMultiplierOG);
+
                 var type = "road";
 
                 if (!tilesToCreate[y].ReturnWalkable())
@@ -78,12 +90,12 @@ public class CityGenerator : MonoBehaviour
                             var prefabLastChars = RoadTilesPrefabs[z].name.Remove(0, (RoadTilesPrefabs[z].name.Length - 2));
                             if(tilesToCreate[y].ReturnDefiningChar() == prefabLastChars)
                             {
-                                Debug.Log("Creating New Road Tile!");
+                                //Debug.Log("Creating New Road Tile!");
                                 var newTile = Instantiate(RoadTilesPrefabs[z]);
                                 var posXValue = positionIncrement * posXMultiplier;
                                 var posYValue = positionIncrement * posYMultiplier;
                                 newTile.transform.position = new Vector3(posXValue, 0, posYValue * -1);
-                                newTile.transform.parent = City.transform;
+                                newTile.transform.parent = newBlock.transform;
                                 newTile.name += numberForObj.ToString();
                                 numberForObj++;
                             }
@@ -95,12 +107,12 @@ public class CityGenerator : MonoBehaviour
                             var prefabLastChars = BuildingPrefabs[z].name.Remove(0, (BuildingPrefabs[z].name.Length - 2));
                             if(tilesToCreate[y].ReturnDefiningChar() == prefabLastChars)
                             {
-                                Debug.Log("Creating New Building Tile!");
+                                //Debug.Log("Creating New Building Tile!");
                                 var newTile = Instantiate(BuildingPrefabs[z]);
                                 var posXValue = positionIncrement * posXMultiplier;
                                 var posYValue = positionIncrement * posYMultiplier;
                                 newTile.transform.position = new Vector3(posXValue, 0, posYValue * -1);
-                                newTile.transform.parent = City.transform;
+                                newTile.transform.parent = newBlock.transform;
                                 newTile.name += numberForObj.ToString();
                                 numberForObj++;
                             }
@@ -113,39 +125,55 @@ public class CityGenerator : MonoBehaviour
 
                 posXMultiplier++;
 
+                var thingy = (tilesToCreate.Length / 2) - 1;
+                var thingy2 = columnsCreated + 1;
+                var thingy3 = thingy * thingy2;
+
+                Debug.Log("Tiles Length: " + thingy + " | Columns + 1: " + thingy2 + " | Result Multi: " + thingy3);
+
                 if(posXMultiplier >= ((tilesToCreate.Length / 2) - 1) * (columnsCreated + 1))
                 {
                     posXMultiplier = posXMultiplierOG;
                     posYMultiplier++;
                 }
+            }
 
-                if(posYMultiplier >= ((tilesToCreate.Length / 2) - 1) * (columnsCreated + 1))
+            posXMultiplierOG += (tilesToCreate.Length / 2) - 1;
+            posXMultiplier = posXMultiplierOG;
+            posYMultiplier = posYMultiplierOG;
+            columnsCreated++;
+
+           // if (createNewLine)
+           // {
+                if(columnsCreated >= CityBlocksList.Count / 2)
                 {
+                    columnsCreated = 0;
+
+                    posXMultiplierOG = 0;
+                    posXMultiplier = posXMultiplierOG;
+
+                    posYMultiplierOG += (tilesToCreate.Length / 2) - 1;
                     posYMultiplier = posYMultiplierOG;
                 }
-            }
-
-            if (!createNewLine)
-            {
-                posXMultiplierOG += (tilesToCreate.Length / 2) - 1;
-                posXMultiplier = posXMultiplierOG;
-                posYMultiplier = posYMultiplierOG;
-                columnsCreated++;
-            }
-            else
-            {
-                posXMultiplierOG = 0;
-                posXMultiplier = posXMultiplierOG;
-                posYMultiplierOG += (tilesToCreate.Length / 2) - 1;
-                posYMultiplier = posYMultiplierOG;
-                columnsCreated = 0;
-            }
+           // }
         }
     }
 
     public void DestroyAndRecreate()
     {
         Destroy(City);
+
+        CityBlocksList.Clear();
+
+        for(int x = 0; x < CityBlocksSize; x++)
+        {
+            var newBlock = new CityBlock();
+
+            newBlock.SetCityBlock(CrossCityBlock.CrossCityBlockString, CrossCityBlock.CrossCityBlockWalkable);
+
+            CityBlocksList.Add(newBlock);
+        }
+
         SpawnCurrentCity();
     }
 }
