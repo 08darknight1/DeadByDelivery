@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7295980376376422602}
   - component: {fileID: 3157454664643940178}
   m_Layer: 0
-  m_Name: BlockLeftDoorDebug
+  m_Name: BlockLeftDoorDebugPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
