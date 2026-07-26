@@ -20,7 +20,7 @@ public class CarDoorController : MonoBehaviour
 
     void Update()
     {
-        if (CanEnterCar)
+        if (CanEnterCar && Player.GetComponent<PlayerController>().ReturnMovementEnable())
         {
             if (RewiredPlayer.GetButtonDown("Interact"))
             {

@@ -108,7 +108,7 @@ public class DialogHandler : MonoBehaviour
 
         DialogPanelAnimator.SetBool("ShowUp", true);
 
-        Debug.Log("Starting conversation [" + index + "] - " + AllConversations[index].ReturnConversationName() + "!");
+        //Debug.Log("Starting conversation [" + index + "] - " + AllConversations[index].ReturnConversationName() + "!");
     }
 
     private void EndConversation()
@@ -145,6 +145,8 @@ public class DialogHandler : MonoBehaviour
 
         for(int x = 0; x < extractedText.Length; x++)
         {
+            //Debug.Log("ExtractedText: " + extractedText[x] + " | StilDialogValue: " + stillDialog);
+
             if (!dialogFound && extractedText[x].Contains("DialogueIntro-")) //14 chars
             {
                 Debug.Log("New conversation found in extracted Text! Name: " + extractedText[x].Remove(0, 14));
@@ -162,6 +164,12 @@ public class DialogHandler : MonoBehaviour
                     ConversationToAdd.SetupNewConversation(dialogName, dialogs, colors);
 
                     AllConversations.Add(ConversationToAdd);
+
+                    dialogFound = false;
+                    stillDialog = true;
+                    dialogName = "";
+                    dialogs.Clear();
+                    colors.Clear();
                 }
                 else
                 {

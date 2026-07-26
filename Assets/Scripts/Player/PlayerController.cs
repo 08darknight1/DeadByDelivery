@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour
     {
         PlayerRigidbody = gameObject.GetComponent<Rigidbody>();
         RewiredPlayer = ReInput.players.GetPlayer(0);
-        MovementEnabled = true;
     }
 
     // Update is called once per frame
@@ -32,5 +31,10 @@ public class PlayerController : MonoBehaviour
     public void ChangeMovementEnabled(bool newValue)
     {
         MovementEnabled = newValue;
+    }
+
+    public bool ReturnMovementEnable()
+    {
+        return MovementEnabled;
     }
 }

@@ -7,3 +7,33 @@ DialogueIntro-Test
 ;Ta ok… Seguranca!!!!!!;;;	Red
 ;*Dies*;;;	Blue
 DialogueEnd	
+	
+DialogueIntro-GameStart	
+;Well, Its looks like you are the new guy sent by HR!;;;	Red
+;I am Carlins Primus Devilus the Third! But you can call me Prime! Welcome to the family of To Hell & Beyond!;;;	Red
+;Since you already did so well on the interview, I am gonna let you go to employee training right away!;;;	Red
+;Oh! And uhh, get ready for an explosive first day, hehehe!;;;	Red
+DialogueEnd	
+	
+DialogueIntro-Tutorial1	
+;Hey buddy, get in here! Use WASD to walk and E to get into the car!;;;	Grey
+DialogueEnd	
+	
+DialogueIntro-Tutorial2	
+;You are already doing better than the last guy. Since you said you had a driving license I wont have to cover the basics!;;;	Grey
+;Just drive us towards the end of the course!;;;	Grey
+DialogueEnd	
+	
+DialogueIntro-Tutorial3	
+;Whenever you are ready to deliver a package, just press E to leave the car and deliver it personally!;;;	Grey
+DialogueEnd	
+	
+DialogueIntro-Tutorial4	
+;Now get back here! We dont got all day!;;;	Grey
+DialogueEnd	
+	
+DialogueIntro-Tutorial5	
+;That basically covers it!;;;	Grey
+;You will start right away, ok? And remember, unlike here, you will be delivering bombs so dont take long or else;;;	Grey
+;KABOOOM! Hahaha;;;	Grey
+DialogueEnd	

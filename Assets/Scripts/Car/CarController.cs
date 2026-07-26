@@ -14,12 +14,17 @@ public class CarController : MonoBehaviour
 
     private Player RewiredPlayer;
 
+    private PlayerController PlayerControllerObj;
+
     private List<WheelCollider> WheelList = new List<WheelCollider>();
 
     void Start()
     {
         CarRigidbody = gameObject.GetComponent<Rigidbody>();
+
         RewiredPlayer = ReInput.players.GetPlayer(0);
+
+        PlayerControllerObj = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
 
         var WheelParent = gameObject.transform.Find("Wheels");
         
@@ -47,7 +52,7 @@ public class CarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(PlayerIsOnCar)
+        if(PlayerIsOnCar && PlayerControllerObj.ReturnMovementEnable())
         {
             for(int x = 0; x < WheelList.Count; x++)
             {
@@ -81,6 +86,11 @@ public class CarController : MonoBehaviour
 
             //child.Rotate(WheelList[x].rpm / 60 * 360 * Time.deltaTime, 0, 0);
         }
+    }
+
+    public void StopMovementCompletely()
+    {
+        CarRigidbody.linearVelocity = Vector3.zero;
     }
 
     public void SetPlayerIsOnCar(bool newValue)

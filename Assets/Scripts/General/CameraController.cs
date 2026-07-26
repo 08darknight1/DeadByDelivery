@@ -14,9 +14,12 @@ public class CameraController : MonoBehaviour
 
     void FixedUpdate()
     {
-        var currentPos = CameraObj.transform.position;
-        var newPos = new Vector3(FocusObj.transform.position.x, currentPos.y, FocusObj.transform.position.z);
-        CameraObj.transform.position = newPos;
+        if(FocusObj != null)
+        {
+            var currentPos = CameraObj.transform.position;
+            var newPos = new Vector3(FocusObj.transform.position.x, currentPos.y, FocusObj.transform.position.z);
+            CameraObj.transform.position = newPos;
+        }
     }
 
     public void SetCameraFocus(GameObject newFocus)
