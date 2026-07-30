@@ -67,7 +67,7 @@ public class DialogHandler : MonoBehaviour
                         CurrentChar++;
                     }
 
-                    if (RewiredPlayer.GetAnyButtonDown())
+                    if (RewiredPlayer.GetButtonDown("Interact"))
                     {
                         textBox.text = PhraseToPrint;
                         CurrentChar = PhraseToPrint.Length;
@@ -81,7 +81,7 @@ public class DialogHandler : MonoBehaviour
                         FinishedCurrentPhrasePrint = true;
                     }
 
-                    if (RewiredPlayer.GetAnyButtonDown())
+                    if (RewiredPlayer.GetButtonDown("Interact"))
                     {
                         CurrentPhraseSelected++;
 

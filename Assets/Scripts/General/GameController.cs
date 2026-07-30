@@ -7,17 +7,19 @@ public class GameController : MonoBehaviour
 {
     public GameObject FadePanel;
 
-    private DialogHandler DialogHandlerObj;
+    private DialogHandler _dialogHandler;
 
-    private PlayerController PlayerControllerObj;
+    private PlayerController _playerController;
 
-    private CarController CarControllerObj;
+    private CarController _carController;
 
-    private int GameState;
+    private CutsceneController _cutsceneController;
 
-    private bool ActivateFadePanel, FadeIn;
+    private int _gameState;
 
-    private List<bool> GameTriggers = new List<bool>();
+    private bool _activateFadePanel, _fadeIn;
+
+    private List<bool> _gameTriggers = new List<bool>();
 
     /*
         0 - Intro
@@ -31,134 +33,135 @@ public class GameController : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1;
-        DialogHandlerObj = gameObject.GetComponent<DialogHandler>();
-        ActivateFadePanel = true;
-        PlayerControllerObj = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        CarControllerObj = GameObject.FindGameObjectWithTag("Car").GetComponent<CarController>();
+        _dialogHandler = gameObject.GetComponent<DialogHandler>();
+        _activateFadePanel = true;
+        _playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
+        _carController = GameObject.FindGameObjectWithTag("Car").GetComponent<CarController>();
+        _cutsceneController = gameObject.GetComponent<CutsceneController>();
 
-        GameTriggers.Add(false); //GameTrigger 0 - PlayerHasWatchedIntro
-        GameTriggers.Add(false); //GameTrigger 1 - PlayerHasStartedTutorial
-        GameTriggers.Add(false); //GameTrigger 2 - PlayerHasEnteredCar
-        GameTriggers.Add(false); //GameTrigger 3 - PlayerHasReachedEndOfCourse
-        GameTriggers.Add(false); //GameTrigger 4 - PlayerCanDeliverTutorialPackage
-        GameTriggers.Add(false); //GameTrigger 5 - PlayerHasDeliveredTutorialPackage
-        GameTriggers.Add(false); //GameTrigger 6 - PlayerOnlyHasToReturnToCar
-        GameTriggers.Add(false); //GameTrigger 7 - PlayerHasCompletedTutorial
+        _gameTriggers.Add(false); //GameTrigger 0 - PlayerHasWatchedIntro
+        _gameTriggers.Add(false); //GameTrigger 1 - PlayerHasStartedTutorial
+        _gameTriggers.Add(false); //GameTrigger 2 - PlayerHasEnteredCar
+        _gameTriggers.Add(false); //GameTrigger 3 - PlayerHasReachedEndOfCourse
+        _gameTriggers.Add(false); //GameTrigger 4 - PlayerCanDeliverTutorialPackage
+        _gameTriggers.Add(false); //GameTrigger 5 - PlayerHasDeliveredTutorialPackage
+        _gameTriggers.Add(false); //GameTrigger 6 - PlayerOnlyHasToReturnToCar
+        _gameTriggers.Add(false); //GameTrigger 7 - PlayerHasCompletedTutorial
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (ActivateFadePanel)
+        if (_activateFadePanel)
         {
             MakePanelFade();
         }
 
-        switch (GameState)
+        switch (_gameState)
         {
             case 0:
-                if (!ActivateFadePanel && !GameTriggers[0])
+                if (!_activateFadePanel && !_gameTriggers[0])
                 {
-                    DialogHandlerObj.StartNewConversation(1);
-                    GameTriggers[0] = true;
+                    _dialogHandler.StartNewConversation(1);
+                    _gameTriggers[0] = true;
                 }
 
-                if (GameTriggers[0] && !DialogHandlerObj.ReturnConversationStatus())
+                if (_gameTriggers[0] && !_dialogHandler.ReturnConversationStatus())
                 {
-                    GameState = 1;
+                    _gameState = 1;
                 }
             break;
             case 1:
-                if(!GameTriggers[1])
+                if(!_gameTriggers[1])
                 {
-                    if (!DialogHandlerObj.ReturnConversationStatus())
+                    if (!_dialogHandler.ReturnConversationStatus())
                     {
-                        DialogHandlerObj.StartNewConversation(2);
-                        GameTriggers[1] = true;
+                        _dialogHandler.StartNewConversation(2);
+                        _gameTriggers[1] = true;
                     }
                 }
                 else
                 {
-                    if (!GameTriggers[2])
+                    if (!_gameTriggers[2])
                     {
-                        if (!DialogHandlerObj.ReturnConversationStatus())
+                        if (!_dialogHandler.ReturnConversationStatus())
                         {
-                            PlayerControllerObj.ChangeMovementEnabled(true);
+                            _playerController.ChangeMovementEnabled(true);
 
-                            if (CarControllerObj.ReturnPlayerIsOnCar())
+                            if (_carController.ReturnPlayerIsOnCar())
                             {
-                                GameTriggers[2] = true;
-                                DialogHandlerObj.StartNewConversation(3);
-                                PlayerControllerObj.ChangeMovementEnabled(false);
+                                _gameTriggers[2] = true;
+                                _dialogHandler.StartNewConversation(3);
+                                _playerController.ChangeMovementEnabled(false);
                             }
                         }
                     }
                 }
 
-                if (!GameTriggers[3])
+                if (!_gameTriggers[3])
                 {
-                    if(GameTriggers[2] && !DialogHandlerObj.ReturnConversationStatus())
+                    if(_gameTriggers[2] && !_dialogHandler.ReturnConversationStatus())
                     {
-                        PlayerControllerObj.ChangeMovementEnabled(true);
+                        _playerController.ChangeMovementEnabled(true);
                     }
                 }
                 else
                 {
-                    if(!GameTriggers[4])
+                    if(!_gameTriggers[4])
                     {
-                        CarControllerObj.StopMovementCompletely();
-                        PlayerControllerObj.ChangeMovementEnabled(false);
-                        DialogHandlerObj.StartNewConversation(4);
-                        GameTriggers[4] = true;
+                        _carController.StopMovementCompletely();
+                        _playerController.ChangeMovementEnabled(false);
+                        _dialogHandler.StartNewConversation(4);
+                        _gameTriggers[4] = true;
                     }
                 }
 
-                if(!GameTriggers[6])
+                if(!_gameTriggers[6])
                 {
-                    if(!GameTriggers[5])
+                    if(!_gameTriggers[5])
                     {
-                        if (GameTriggers[4])
+                        if (_gameTriggers[4])
                         {
-                            if (!DialogHandlerObj.ReturnConversationStatus())
+                            if (!_dialogHandler.ReturnConversationStatus())
                             {
-                                PlayerControllerObj.ChangeMovementEnabled(true);
+                                _playerController.ChangeMovementEnabled(true);
                             }
                         }
                     }
                     else
                     {
-                        PlayerControllerObj.ChangeMovementEnabled(false);
-                        DialogHandlerObj.StartNewConversation(5);
-                        GameTriggers[6] = true;
+                        _playerController.ChangeMovementEnabled(false);
+                        _dialogHandler.StartNewConversation(5);
+                        _gameTriggers[6] = true;
                     }
                 }
                 else
                 {
-                    if (!CarControllerObj.ReturnPlayerIsOnCar())
+                    if (!_carController.ReturnPlayerIsOnCar())
                     {
-                        if (!DialogHandlerObj.ReturnConversationStatus())
+                        if (!_dialogHandler.ReturnConversationStatus())
                         {
-                            PlayerControllerObj.ChangeMovementEnabled(true);
+                            _playerController.ChangeMovementEnabled(true);
                         }
                     }
                     else
                     {
-                        if(!GameTriggers[7])
+                        if(!_gameTriggers[7])
                         {
-                            GameTriggers[7] = true;
-                            PlayerControllerObj.ChangeMovementEnabled(false);
-                            DialogHandlerObj.StartNewConversation(6);
+                            _gameTriggers[7] = true;
+                            _playerController.ChangeMovementEnabled(false);
+                            _dialogHandler.StartNewConversation(6);
                         }
                     }
                 }
 
-                if(GameTriggers[7] && !DialogHandlerObj.ReturnConversationStatus())
+                if(_gameTriggers[7] && !_dialogHandler.ReturnConversationStatus())
                 {
-                    GameState = 2;
+                    _gameState = 2;
                 }
             break;
             case 2:
-                CarControllerObj.transform.position = Vector3.zero;
+                _carController.transform.position = Vector3.zero;
             break;
             default:
                 Debug.Log("Idk, just want to do wjat I can at this point...");
@@ -168,12 +171,12 @@ public class GameController : MonoBehaviour
 
     public void ChangeGameTrigger(int index, bool newValue)
     {
-        GameTriggers[index] = newValue;
+        _gameTriggers[index] = newValue;
     }
 
     public int ReturnGameState()
     {
-        return GameState;
+        return _gameState;
     }
 
     public void SetNewGameSpeed(float newGameSpeed)
@@ -183,32 +186,32 @@ public class GameController : MonoBehaviour
 
     private void MakePanelFade()
     {
-        if (FadeIn && FadePanel.GetComponent<Image>().color.a < 1)
+        if (_fadeIn && FadePanel.GetComponent<Image>().color.a < 1)
         {
             var newAlpha = FadePanel.GetComponent<Image>().color.a + (0.35f * Time.deltaTime);
             FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, newAlpha);
         }
-        else if(!FadeIn && FadePanel.GetComponent<Image>().color.a > 0)
+        else if(!_fadeIn && FadePanel.GetComponent<Image>().color.a > 0)
         {
             var newAlpha = FadePanel.GetComponent<Image>().color.a - (0.35f * Time.deltaTime);
             FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, newAlpha);
         }
         else
         {
-            ActivateFadePanel = false;
+            _activateFadePanel = false;
         }
     }
 
     public bool UseFadePanel(bool fadeIn)
     {
-        ActivateFadePanel = true;
-        FadeIn = fadeIn;
+        _activateFadePanel = true;
+        _fadeIn = fadeIn;
 
-        if (FadeIn && FadePanel.GetComponent<Image>().color.a >= 1)
+        if (_fadeIn && FadePanel.GetComponent<Image>().color.a >= 1)
         {
             return true;
         }
-        else if(!FadeIn && FadePanel.GetComponent<Image>().color.a <= 0)
+        else if(!_fadeIn && FadePanel.GetComponent<Image>().color.a <= 0)
         {
             return true;
         }
