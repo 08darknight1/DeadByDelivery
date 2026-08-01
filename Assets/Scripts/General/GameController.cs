@@ -34,12 +34,11 @@ public class GameController : MonoBehaviour
     {
         Time.timeScale = 1;
         _dialogHandler = gameObject.GetComponent<DialogHandler>();
-        _activateFadePanel = true;
         _playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         _carController = GameObject.FindGameObjectWithTag("Car").GetComponent<CarController>();
         _cutsceneController = gameObject.GetComponent<CutsceneController>();
 
-        _gameTriggers.Add(false); //GameTrigger 0 - PlayerHasWatchedIntro
+        _gameTriggers.Add(false); //GameTrigger 0 - PlayerIsWatchingIntro
         _gameTriggers.Add(false); //GameTrigger 1 - PlayerHasStartedTutorial
         _gameTriggers.Add(false); //GameTrigger 2 - PlayerHasEnteredCar
         _gameTriggers.Add(false); //GameTrigger 3 - PlayerHasReachedEndOfCourse
@@ -62,11 +61,11 @@ public class GameController : MonoBehaviour
             case 0:
                 if (!_activateFadePanel && !_gameTriggers[0])
                 {
-                    _dialogHandler.StartNewConversation(1);
+                    _cutsceneController.StartCutscene(1);
                     _gameTriggers[0] = true;
                 }
 
-                if (_gameTriggers[0] && !_dialogHandler.ReturnConversationStatus())
+                if (_gameTriggers[0] && !_cutsceneController.ReturnCutsceneActive())
                 {
                     _gameState = 1;
                 }
@@ -91,7 +90,7 @@ public class GameController : MonoBehaviour
                             if (_carController.ReturnPlayerIsOnCar())
                             {
                                 _gameTriggers[2] = true;
-                                _dialogHandler.StartNewConversation(3);
+                                _cutsceneController.StartCutscene(3);
                                 _playerController.ChangeMovementEnabled(false);
                             }
                         }
@@ -100,7 +99,7 @@ public class GameController : MonoBehaviour
 
                 if (!_gameTriggers[3])
                 {
-                    if(_gameTriggers[2] && !_dialogHandler.ReturnConversationStatus())
+                    if(_gameTriggers[2] && !_cutsceneController.ReturnCutsceneActive())
                     {
                         _playerController.ChangeMovementEnabled(true);
                     }
@@ -150,18 +149,28 @@ public class GameController : MonoBehaviour
                         {
                             _gameTriggers[7] = true;
                             _playerController.ChangeMovementEnabled(false);
-                            _dialogHandler.StartNewConversation(6);
+                            _cutsceneController.StartCutscene(6);
                         }
                     }
                 }
 
-                if(_gameTriggers[7] && !_dialogHandler.ReturnConversationStatus())
+                if(_gameTriggers[7])
                 {
-                    _gameState = 2;
+                    if (!_cutsceneController.ReturnCutsceneActive())
+                    {
+                        _gameState = 2;
+                    }
+                    else
+                    {
+                        if(UseFadePanel(true))
+                        {
+                            _carController.transform.position = Vector3.zero;
+                        }
+                    }
                 }
             break;
             case 2:
-                _carController.transform.position = Vector3.zero;
+                Debug.Log("Real Gameplay Starts now!");
             break;
             default:
                 Debug.Log("Idk, just want to do wjat I can at this point...");
