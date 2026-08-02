@@ -15,6 +15,8 @@ public class GameController : MonoBehaviour
 
     private CutsceneController _cutsceneController;
 
+    private GPSController _gpsController;
+
     private int _gameState;
 
     private bool _activateFadePanel, _fadeIn;
@@ -37,6 +39,7 @@ public class GameController : MonoBehaviour
         _playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         _carController = GameObject.FindGameObjectWithTag("Car").GetComponent<CarController>();
         _cutsceneController = gameObject.GetComponent<CutsceneController>();
+        _gpsController = gameObject.GetComponent<GPSController>();
 
         _gameTriggers.Add(false); //GameTrigger 0 - PlayerIsWatchingIntro
         _gameTriggers.Add(false); //GameTrigger 1 - PlayerHasStartedTutorial
@@ -102,6 +105,8 @@ public class GameController : MonoBehaviour
                     if(_gameTriggers[2] && !_cutsceneController.ReturnCutsceneActive())
                     {
                         _playerController.ChangeMovementEnabled(true);
+                        var tutorialObjective = GameObject.Find("TutorialZone").transform.Find("DeliveryPackage").transform;
+                        _gpsController.SetNewObjective(tutorialObjective);
                     }
                 }
                 else
@@ -112,6 +117,7 @@ public class GameController : MonoBehaviour
                         _playerController.ChangeMovementEnabled(false);
                         _dialogHandler.StartNewConversation(4);
                         _gameTriggers[4] = true;
+                        _gpsController.StopTracking();
                     }
                 }
 
@@ -164,7 +170,7 @@ public class GameController : MonoBehaviour
                     {
                         if(UseFadePanel(true))
                         {
-                            _carController.transform.position = Vector3.zero;
+                            _carController.transform.position = Vector3.one;
                         }
                     }
                 }
