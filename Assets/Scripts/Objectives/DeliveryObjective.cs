@@ -5,34 +5,38 @@ public class DeliveryObjective : MonoBehaviour
 {
     public bool TutorialObjective;
 
-    public GameObject Marker;
-    private GameController GameController;
-    private Player RewiredPlayer;
-    private bool PlayerEnteredObjectiveZone, ObjectiveDone;
+    private GameController _gameController;
+
+    private Player _playerInput;
+
+    private bool _playerOnDeliveryZone, _deliveryDone;
+
+    private GameObject _groundMarker;
 
     void Start()
     {
-        RewiredPlayer = ReInput.players.GetPlayer(0);
-        GameController = GameObject.Find("GameController").GetComponent<GameController>();
+        _playerInput = ReInput.players.GetPlayer(0);
+        _gameController = GameObject.Find("GameController").GetComponent<GameController>();
+        _groundMarker = transform.Find("GroundMarker").gameObject;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (PlayerEnteredObjectiveZone)
+        if (_playerOnDeliveryZone)
         {
-            if (RewiredPlayer.GetButtonDown("Interact") && !ObjectiveDone)
+            if (_playerInput.GetButtonDown("Interact") && !_deliveryDone)
             {
-                ObjectiveDone = true;
-                Marker.SetActive(false);
+                _deliveryDone = true;
+                _groundMarker.SetActive(false);
 
                 if (TutorialObjective)
                 {
-                    GameController.ChangeGameTrigger(5, true);
+                    _gameController.ChangeGameTrigger(5, true);
                 }
                 else
                 {
-                    //FAZER ALGO AQUI COM O GAMECONTROLLER PARA OS OBJECTIVES DA GAMEPLAY NORMAR
+                    _gameController.DeliveredNewPackage();
                 }
             }
         }
@@ -42,7 +46,7 @@ public class DeliveryObjective : MonoBehaviour
     {
         if(other.tag == "Player")
         {
-            PlayerEnteredObjectiveZone = true;
+            _playerOnDeliveryZone = true;
         }
     }
 
@@ -50,7 +54,7 @@ public class DeliveryObjective : MonoBehaviour
     {
         if(other.tag == "Player")
         {
-            PlayerEnteredObjectiveZone = false;
+            _playerOnDeliveryZone = false;
         }
     }
 }

@@ -5,36 +5,36 @@ public class PlayerController : MonoBehaviour
 {
     public float PlayerSpeed;
 
-    private Rigidbody PlayerRigidbody;
+    private Rigidbody _playerRigidbody;
 
-    private Player RewiredPlayer;
+    private Player _playerInput;
 
-    private bool MovementEnabled;
+    private bool _movementEnabled;
 
     void Start()
     {
-        PlayerRigidbody = gameObject.GetComponent<Rigidbody>();
-        RewiredPlayer = ReInput.players.GetPlayer(0);
+        _playerRigidbody = gameObject.GetComponent<Rigidbody>();
+        _playerInput = ReInput.players.GetPlayer(0);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(MovementEnabled)
+        if(_movementEnabled)
         {
-            var horizontalMov = RewiredPlayer.GetAxisRaw("MoveX") * PlayerSpeed;
-            var verticalMov = RewiredPlayer.GetAxisRaw("MoveY") * PlayerSpeed;
-            PlayerRigidbody.AddForce(new Vector3(horizontalMov, 0, verticalMov));
+            var horizontalMov = _playerInput.GetAxisRaw("MoveX") * PlayerSpeed;
+            var verticalMov = _playerInput.GetAxisRaw("MoveY") * PlayerSpeed;
+            _playerRigidbody.AddForce(new Vector3(horizontalMov, 0, verticalMov));
         }
     }
 
     public void ChangeMovementEnabled(bool newValue)
     {
-        MovementEnabled = newValue;
+        _movementEnabled = newValue;
     }
 
     public bool ReturnMovementEnable()
     {
-        return MovementEnabled;
+        return _movementEnabled;
     }
 }

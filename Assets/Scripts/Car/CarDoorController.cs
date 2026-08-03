@@ -87,7 +87,7 @@ public class CarDoorController : MonoBehaviour
 
         var RaycasterHit = Physics.Raycast(origin, Vector3.up, out RaycastHit Hit, Mathf.Infinity);
 
-        if(RaycasterHit)
+        if(RaycasterHit && Hit.transform.tag != "Car")
         {
             Debug.Log("Hit this thing: " + Hit.transform.name);
             return true;
