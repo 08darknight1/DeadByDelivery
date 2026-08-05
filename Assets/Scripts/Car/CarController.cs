@@ -36,7 +36,7 @@ public class CarController : MonoBehaviour
 
     void Update()
     {
-        if(PlayerIsOnCar)
+        if(PlayerIsOnCar && PlayerControllerObj.ReturnMovementEnable())
         {
             HorizontalMov = RewiredPlayer.GetAxisRaw("MoveX");
             VerticalMov = RewiredPlayer.GetAxisRaw("MoveY");
@@ -91,6 +91,8 @@ public class CarController : MonoBehaviour
     public void StopMovementCompletely()
     {
         CarRigidbody.linearVelocity = Vector3.zero;
+        CarRigidbody.isKinematic = true;
+        CarRigidbody.isKinematic = false;
     }
 
     public void SetPlayerIsOnCar(bool newValue)

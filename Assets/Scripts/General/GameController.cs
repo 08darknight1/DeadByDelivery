@@ -7,6 +7,8 @@ public class GameController : MonoBehaviour
 {
     public GameObject FadePanel, DeliveryPackagePrefab;
 
+    public int TimeForDelivery;
+
     private DialogHandler _dialogHandler;
 
     private PlayerController _playerController;
@@ -17,11 +19,15 @@ public class GameController : MonoBehaviour
 
     private GPSController _gpsController;
 
-    private GameObject _packagesText;
+    private GameObject _packagesText, _timerText;
+
+    private TimerController _timerController;
 
     private int _gameState;
 
     private GameObject[] _packagesToDeliver;
+
+    private Transform _playerSpawnPoint;
 
     private bool _activateFadePanel, _fadeIn, _setupNewWorkDay;
 
@@ -45,11 +51,16 @@ public class GameController : MonoBehaviour
         _carController = GameObject.FindGameObjectWithTag("Car").GetComponent<CarController>();
         _cutsceneController = gameObject.GetComponent<CutsceneController>();
         _gpsController = gameObject.GetComponent<GPSController>();
+        _timerController = gameObject.GetComponent<TimerController>();
 
         _packagesText = GameObject.Find("PackagesText");
         _packagesText.SetActive(false);
 
+        _timerText = GameObject.Find("TimerText");
+        _timerText.SetActive(false);
+
         PlayerData.DaysOnTheJob = 0;
+        PlayerData.RevivalTickets = 3;
 
         _gameTriggers.Add(false); //GameTrigger 0 - PlayerIsWatchingIntro
         _gameTriggers.Add(false); //GameTrigger 1 - PlayerHasStartedTutorial
@@ -180,7 +191,7 @@ public class GameController : MonoBehaviour
                     {
                         if(UseFadePanel(true))
                         {
-                            _carController.transform.position = Vector3.one;
+                            SetPlayerAtSpawnPoint();
                         }
                     }
                 }
@@ -197,15 +208,69 @@ public class GameController : MonoBehaviour
                 }
 
                 UpdateUIGameplayText();
+
+                CheckForFail();
+            break;
+            case 4:
+                if (!_cutsceneController.ReturnCutsceneActive())
+                {
+                    _gameState = 2;
+                }
+                else
+                {
+                    if(UseFadePanel(false))
+                    {
+                        _setupNewWorkDay = false;
+                        PlayerData.RevivalTickets--;
+                        _timerController.RestartTimer();
+                        _carController.StopMovementCompletely();
+                        SetPlayerAtSpawnPoint();
+                    }
+                }
             break;
             default:
-                Debug.Log("Idk, just want to do wjat I can at this point...");
+                Debug.Log("Wut? You werent supposed to get here...");
             break;
+        }
+    }
+
+    public void SetPlayerAtSpawnPoint()
+    {
+        if(_playerSpawnPoint == null)
+        {
+            var fullSpawnSpots = GameObject.FindGameObjectsWithTag("OfficeSpawn");
+
+            var randomNumber = Random.Range(0, fullSpawnSpots.Length - 1);
+
+            _playerSpawnPoint = fullSpawnSpots[randomNumber].transform;
+        }
+
+        var carNewPos = new Vector3(_playerSpawnPoint.position.x, _playerSpawnPoint.position.y, _playerSpawnPoint.position.z -15f);
+
+        if (_carController.ReturnPlayerIsOnCar())
+        {
+            _carController.transform.position = carNewPos;
+        }
+        else
+        {
+            _playerController.transform.position = _playerSpawnPoint.position;
+
+            _carController.transform.position = carNewPos;
         }
     }
 
     public void NewWorkDay()
     {
+        var previousPackages = GameObject.FindGameObjectsWithTag("DeliveryPackage");
+
+        if(previousPackages.Length > 0)
+        {
+            for(int x = 0; x < previousPackages.Length; x++)
+            {
+                Destroy(previousPackages[x]);
+            }
+        }
+
         _packagesToDeliver = new GameObject[Random.Range(3, 3 + PlayerData.DaysOnTheJob)];
 
         var fullSpawnSpots = GameObject.FindGameObjectsWithTag("DeliverySpawn");
@@ -244,6 +309,8 @@ public class GameController : MonoBehaviour
         }
 
         _gpsController.SetNewObjective(_packagesToDeliver[0].transform);
+
+        _timerController.StartTimer(TimeForDelivery);
     }
 
     public void DeliveredNewPackage()
@@ -275,6 +342,8 @@ public class GameController : MonoBehaviour
                 }
 
                 _gpsController.SetNewObjective(_packagesToDeliver[0].transform);
+                _timerController.RestartTimer();
+                _timerController.StartTimer(TimeForDelivery);
             }
             else
             {
@@ -288,6 +357,8 @@ public class GameController : MonoBehaviour
     {
         _packagesText.SetActive(true);
 
+        _timerText.SetActive(true);
+
         if(_packagesToDeliver != null)
         {
             if(_packagesToDeliver.Length > 0)
@@ -300,6 +371,27 @@ public class GameController : MonoBehaviour
         {
             var newText = "No more packages!";
             _packagesText.GetComponent<TextMeshProUGUI>().text = newText;
+        }
+
+        var currentTimeText = "Time Left: ";
+
+        if(_timerController.ReturnTimerValue() >= 0)
+        {
+            _timerText.GetComponent<TextMeshProUGUI>().text = currentTimeText + " " + _timerController.ReturnTimerValue().ToString("F0");
+        }
+        else
+        {
+            _timerText.GetComponent<TextMeshProUGUI>().text = currentTimeText + " 0";
+        }
+    }
+
+    public void CheckForFail()
+    {
+        if (_timerController.ReturnTimerSignal())
+        {
+            _playerController.ChangeMovementEnabled(false);
+            _cutsceneController.StartCutscene(7);
+            _gameState = 4;
         }
     }
 

@@ -162,7 +162,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DeliveryObjective
   TutorialObjective: 0
-  PackageWeight: 1
 --- !u!65 &3145604799212339123
 BoxCollider:
   m_ObjectHideFlags: 0

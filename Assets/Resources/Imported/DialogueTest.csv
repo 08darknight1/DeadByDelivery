@@ -37,3 +37,9 @@ DialogueIntro-Tutorial5
 ;You will start right away, ok? And remember, unlike here, you will be delivering bombs so dont take long or else;;;	Grey
 ;KABOOOM! Hahaha;;;	Grey
 DialogueEnd	
+	
+DialogueIntro-DeathGeneric	
+;Welcome back! Its crazy out there right?;;;	Red
+;I was expecting you to last longer though.;;;	Red
+;Anyway, you are still good. Get back there and do your job!;;;	Red
+DialogueEnd	

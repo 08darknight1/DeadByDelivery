@@ -8,6 +8,7 @@ TagManager:
   - Car
   - OfficeSpawn
   - DeliverySpawn
+  - DeliveryPackage
   layers:
   - Default
   - TransparentFX
