@@ -10,7 +10,7 @@ public class CutsceneController : MonoBehaviour
 
     private int _cutsceneIndexSelected = -1;
 
-    private GameController _gameController;
+    private FadeController _fadeController;
 
     private Image _imageObject;
 
@@ -18,7 +18,7 @@ public class CutsceneController : MonoBehaviour
 
     void Start()
     {
-        _gameController = gameObject.GetComponent<GameController>();
+        _fadeController = gameObject.GetComponent<FadeController>();
         _imageObject = GameObject.Find("CutscenePanel").GetComponent<Image>();
         _dialogHandler = gameObject.GetComponent<DialogHandler>();
     }
@@ -30,7 +30,9 @@ public class CutsceneController : MonoBehaviour
         {
             if(!_dialogStarted)
             {
-                if (_gameController.UseFadePanel(true))
+                _fadeController.MakePanelFade(true);
+
+                if (_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
                 {
                     if (!ReturnImageAlphaAtExtreme(true))
                     {
@@ -43,14 +45,20 @@ public class CutsceneController : MonoBehaviour
                     }
                 }
             }
-            else if(_dialogStarted && !_dialogHandler.ReturnConversationStatus())
+            else
             {
-                ChangeImageObjectAlpha(false);
-                if(ReturnImageAlphaAtExtreme(false) && _gameController.UseFadePanel(false))
+                if (!_dialogHandler.ReturnConversationStatus())
                 {
-                    _inCutscene = false;
-                    _cutsceneIndexSelected = -1;
-                    _dialogStarted = false;
+                    ChangeImageObjectAlpha(false);
+                
+                    _fadeController.MakePanelFade(false);
+
+                    if(ReturnImageAlphaAtExtreme(false) && !_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
+                    {
+                        _inCutscene = false;
+                        _cutsceneIndexSelected = -1;
+                        _dialogStarted = false;
+                    }
                 }
             }
         }

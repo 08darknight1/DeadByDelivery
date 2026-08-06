@@ -2,11 +2,9 @@
 
 public class TimerController : MonoBehaviour
 {
-    private bool _start;
+    private bool _start, _signal;
 
     private float _timer;
-
-    private bool _signal;
     
     void Update()
     {

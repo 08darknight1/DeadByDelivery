@@ -51,12 +51,12 @@ public class CityGenerator : MonoBehaviour
 
         var columnsCreated = 0;
 
-        var createNewLine = false;
+        /*var createNewLine = false;
 
         if(CityBlocksSize >= 4 && CityBlocksSize%2 == 0)
         {
             createNewLine = true;
-        }
+        }*/
 
         for(int x = 0; x < CityBlocksList.Count; x++)
         {

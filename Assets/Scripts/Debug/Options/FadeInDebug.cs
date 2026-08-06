@@ -3,23 +3,23 @@ using UnityEngine.UI;
 
 public class FadeInDebug : DebugOption
 {
-    private GameController GameControllerObj;
+    private FadeController _fadeController;
 
     public FadeInDebug(): base("FadeInDebug"){}
 
     public override void OptionSetup()
     {
-        GameControllerObj = GameObject.Find("GameController").GetComponent<GameController>();
+        _fadeController = GameObject.Find("GameController").GetComponent<FadeController>();
         base.OptionSetup();
     }
 
     public override void OptionExec()
     {
-        if(GameControllerObj != null)
+        if(_fadeController != null)
         {
-            GameControllerObj.UseFadePanel(true);
+            _fadeController.MakePanelFade(true);
 
-            if(GameControllerObj.UseFadePanel(true))
+            if(_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
             {
                 OptionQuit();
             }
@@ -28,7 +28,7 @@ public class FadeInDebug : DebugOption
 
     public override void OptionQuit()
     {
-        GameControllerObj = null;
+        _fadeController = null;
         base.OptionQuit();
     }
 }

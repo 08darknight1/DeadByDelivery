@@ -5,9 +5,11 @@ using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
-    public GameObject FadePanel, DeliveryPackagePrefab;
+    public GameObject DeliveryPackagePrefab;
 
     public int TimeForDelivery;
+
+    public bool SkipTutorial;
 
     private DialogHandler _dialogHandler;
 
@@ -23,13 +25,15 @@ public class GameController : MonoBehaviour
 
     private TimerController _timerController;
 
+    private FadeController _fadeController;
+
     private int _gameState;
 
     private GameObject[] _packagesToDeliver;
 
     private Transform _playerSpawnPoint;
 
-    private bool _activateFadePanel, _fadeIn, _setupNewWorkDay;
+    private bool _setupNewWorkDay;
 
     private List<bool> _gameTriggers = new List<bool>();
 
@@ -52,6 +56,7 @@ public class GameController : MonoBehaviour
         _cutsceneController = gameObject.GetComponent<CutsceneController>();
         _gpsController = gameObject.GetComponent<GPSController>();
         _timerController = gameObject.GetComponent<TimerController>();
+        _fadeController = gameObject.GetComponent<FadeController>();
 
         _packagesText = GameObject.Find("PackagesText");
         _packagesText.SetActive(false);
@@ -70,28 +75,39 @@ public class GameController : MonoBehaviour
         _gameTriggers.Add(false); //GameTrigger 5 - PlayerHasDeliveredTutorialPackage
         _gameTriggers.Add(false); //GameTrigger 6 - PlayerOnlyHasToReturnToCar
         _gameTriggers.Add(false); //GameTrigger 7 - PlayerHasCompletedTutorial
+
+        if (SkipTutorial)
+        {
+            if(Application.isEditor || Debug.isDebugBuild)
+            {
+                SetPlayerAtSpawnPoint();
+                _gameState = 2;
+            }
+        }
+
+        _fadeController.MakePanelFade(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_activateFadePanel)
-        {
-            MakePanelFade();
-        }
-
         switch (_gameState)
         {
             case 0:
-                if (!_activateFadePanel && !_gameTriggers[0])
+                if (!_gameTriggers[0])
                 {
-                    _cutsceneController.StartCutscene(1);
-                    _gameTriggers[0] = true;
+                    if (_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
+                    {
+                        _cutsceneController.StartCutscene(1);
+                        _gameTriggers[0] = true;
+                    }
                 }
-
-                if (_gameTriggers[0] && !_cutsceneController.ReturnCutsceneActive())
+                else
                 {
-                    _gameState = 1;
+                    if(!_cutsceneController.ReturnCutsceneActive())
+                    {
+                        _gameState = 1;
+                    }
                 }
             break;
             case 1:
@@ -189,7 +205,9 @@ public class GameController : MonoBehaviour
                     }
                     else
                     {
-                        if(UseFadePanel(true))
+                        _fadeController.MakePanelFade(true);
+
+                        if(_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
                         {
                             SetPlayerAtSpawnPoint();
                         }
@@ -201,13 +219,17 @@ public class GameController : MonoBehaviour
                 {
                     NewWorkDay();
                     _setupNewWorkDay = true;
+                    _fadeController.MakePanelFade(false);
                 }
-                else if(UseFadePanel(false))
+                else
                 {
-                    _playerController.ChangeMovementEnabled(true);
+                    if(!_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
+                    {
+                        _playerController.ChangeMovementEnabled(true);
+                    }
                 }
 
-                UpdateUIGameplayText();
+                UpdateGameplayUIText();
 
                 CheckForFail();
             break;
@@ -218,7 +240,7 @@ public class GameController : MonoBehaviour
                 }
                 else
                 {
-                    if(UseFadePanel(false))
+                    if(_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
                     {
                         _setupNewWorkDay = false;
                         PlayerData.RevivalTickets--;
@@ -245,7 +267,11 @@ public class GameController : MonoBehaviour
             _playerSpawnPoint = fullSpawnSpots[randomNumber].transform;
         }
 
-        var carNewPos = new Vector3(_playerSpawnPoint.position.x, _playerSpawnPoint.position.y, _playerSpawnPoint.position.z -15f);
+        var carNewPos = new Vector3(_playerSpawnPoint.position.x, _playerSpawnPoint.position.y, _playerSpawnPoint.position.z -10f);
+
+        _carController.transform.rotation = new Quaternion(0, 0, 0, 0);
+
+        _carController.transform.Rotate(0, -90, 0, Space.World);
 
         if (_carController.ReturnPlayerIsOnCar())
         {
@@ -306,6 +332,11 @@ public class GameController : MonoBehaviour
             }
 
             _packagesToDeliver[x].transform.parent = GameObject.Find("City").transform;
+            
+            if(x > 0)
+            {
+                _packagesToDeliver[x].SetActive(false);
+            }
         }
 
         _gpsController.SetNewObjective(_packagesToDeliver[0].transform);
@@ -341,6 +372,8 @@ public class GameController : MonoBehaviour
                     _packagesToDeliver[x] = newPackageList[x];
                 }
 
+                _packagesToDeliver[0].SetActive(true);
+
                 _gpsController.SetNewObjective(_packagesToDeliver[0].transform);
                 _timerController.RestartTimer();
                 _timerController.StartTimer(TimeForDelivery);
@@ -353,7 +386,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void UpdateUIGameplayText()
+    public void UpdateGameplayUIText()
     {
         _packagesText.SetActive(true);
 
@@ -408,40 +441,5 @@ public class GameController : MonoBehaviour
     public void SetNewGameSpeed(float newGameSpeed)
     {
         Time.timeScale = newGameSpeed;
-    }
-
-    private void MakePanelFade()
-    {
-        if (_fadeIn && FadePanel.GetComponent<Image>().color.a < 1)
-        {
-            var newAlpha = FadePanel.GetComponent<Image>().color.a + (0.35f * Time.deltaTime);
-            FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, newAlpha);
-        }
-        else if(!_fadeIn && FadePanel.GetComponent<Image>().color.a > 0)
-        {
-            var newAlpha = FadePanel.GetComponent<Image>().color.a - (0.35f * Time.deltaTime);
-            FadePanel.GetComponent<Image>().color = new Color(0, 0, 0, newAlpha);
-        }
-        else
-        {
-            _activateFadePanel = false;
-        }
-    }
-
-    public bool UseFadePanel(bool fadeIn)
-    {
-        _activateFadePanel = true;
-        _fadeIn = fadeIn;
-
-        if (_fadeIn && FadePanel.GetComponent<Image>().color.a >= 1)
-        {
-            return true;
-        }
-        else if(!_fadeIn && FadePanel.GetComponent<Image>().color.a <= 0)
-        {
-            return true;
-        }
-
-        return false;
     }
 }

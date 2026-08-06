@@ -1,25 +1,24 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class FadeOutDebug : DebugOption
 {
-    private GameController GameControllerObj;
+    private FadeController _fadeController;
 
     public FadeOutDebug(): base("FadeOutDebug"){}
     
     public override void OptionSetup()
     {
-        GameControllerObj = GameObject.Find("GameController").GetComponent<GameController>();
+        _fadeController = GameObject.Find("GameController").GetComponent<FadeController>();
         base.OptionSetup();
     }
 
     public override void OptionExec()
     {
-        if(GameControllerObj != null)
+        if(_fadeController != null)
         {
-            GameControllerObj.UseFadePanel(false);
+            _fadeController.MakePanelFade(false);
 
-            if(GameControllerObj.UseFadePanel(false))
+            if(!_fadeController.ReturnFadeHasFinished()[0] && _fadeController.ReturnFadeHasFinished()[1])
             {
                 OptionQuit();
             }
@@ -27,7 +26,7 @@ public class FadeOutDebug : DebugOption
     }
     public override void OptionQuit()
     {
-        GameControllerObj = null;
+        _fadeController = null;
         base.OptionQuit();
     }
 }

@@ -3360,6 +3360,7 @@ GameObject:
   m_Component:
   - component: {fileID: 551933620}
   - component: {fileID: 551933619}
+  - component: {fileID: 551933626}
   - component: {fileID: 551933621}
   - component: {fileID: 551933622}
   - component: {fileID: 551933623}
@@ -3384,9 +3385,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc6d925d7299fe742b1b043480fc6433, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameController
-  FadePanel: {fileID: 578094375}
   DeliveryPackagePrefab: {fileID: 7434580774670962678, guid: ac7f2ea2f1e008844a4bf50769f289ed, type: 3}
   TimeForDelivery: 45
+  SkipTutorial: 1
 --- !u!4 &551933620
 Transform:
   m_ObjectHideFlags: 0
@@ -3469,6 +3470,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2e13d7db79bd1646a499431bf6bb4f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NewTimer
+--- !u!114 &551933626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 551933618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae118a2bfe2bad745871ab3b405e29d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FadeController
+  _valueForFading: 0.5
 --- !u!1 &564380656
 GameObject:
   m_ObjectHideFlags: 0

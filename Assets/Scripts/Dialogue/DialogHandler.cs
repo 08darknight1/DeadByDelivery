@@ -7,17 +7,17 @@ public class DialogHandler : MonoBehaviour
 {
     public List<ConversationContainer> AllConversations = new List<ConversationContainer>();
 
-    private Animator DialogPanelAnimator;
-
-    private TextAsset CsvFile;
-
-    private Player RewiredPlayer;
-
-    private int CurrentConversationIndex, CurrentPhraseSelected, CurrentChar;
-
-    private bool ConversationStarted, SelectedNextPhrase, FinishedCurrentPhrasePrint;
-
     public float PrintTimeTarget;
+
+    private Animator _dialogPanelAnimator;
+
+    private TextAsset _csvFile;
+
+    private Player _playerInput;
+
+    private int _currentConversationIndex, _currentPhraseSelected, _currentChar;
+
+    private bool _conversationStarted, _selectedNextPhrase, _finishedCurrentPhrasePrint, _finishConversation;
 
     private float PrintTime;
 
@@ -31,109 +31,119 @@ public class DialogHandler : MonoBehaviour
     {
         var currentFileName = "DialogueTest";
 
-        CsvFile = Resources.Load("Imported\\" + currentFileName) as TextAsset;
+        _csvFile = Resources.Load("Imported\\" + currentFileName) as TextAsset;
 
         ParseTextIntoConversations();
 
-        DialogPanelAnimator = GameObject.Find("DialogPanel").GetComponent<Animator>();
+        _dialogPanelAnimator = GameObject.Find("DialogPanel").GetComponent<Animator>();
 
-        RewiredPlayer = ReInput.players.GetPlayer(0);
+        _playerInput = ReInput.players.GetPlayer(0);
     }
 
     void Update()
     {
-        if (ConversationStarted)
+        if (_conversationStarted)
         {
-            if (!SelectedNextPhrase)
+            if (!_finishConversation)
             {
-                CurrentChar = 0;
-                SelectedNextPhrase = true;
-                var currentConvo = AllConversations[CurrentConversationIndex];
-                PhraseToPrint = currentConvo.ReturnPhraseFromIndex(CurrentPhraseSelected);
-                DialogPanelAnimator.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "";
-                DialogPanelAnimator.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = currentConvo.ReturnColorFromIndex(CurrentPhraseSelected);
-            }
-            else
-            {
-                var textBox = DialogPanelAnimator.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-                
-                PrintTime += Time.deltaTime;
-
-                if(CurrentChar < PhraseToPrint.Length){
-                    if(PrintTime >= PrintTimeTarget)
-                    {
-                        textBox.text += PhraseToPrint[CurrentChar];
-                        PrintTime = 0;
-                        CurrentChar++;
-                    }
-
-                    if (RewiredPlayer.GetButtonDown("Interact"))
-                    {
-                        textBox.text = PhraseToPrint;
-                        CurrentChar = PhraseToPrint.Length;
-                    }
+                if (!_selectedNextPhrase)
+                {
+                    _currentChar = 0;
+                    _selectedNextPhrase = true;
+                    var currentConvo = AllConversations[_currentConversationIndex];
+                    PhraseToPrint = currentConvo.ReturnPhraseFromIndex(_currentPhraseSelected);
+                    _dialogPanelAnimator.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "";
+                    _dialogPanelAnimator.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = currentConvo.ReturnColorFromIndex(_currentPhraseSelected);
                 }
                 else
                 {
-                    if (!FinishedCurrentPhrasePrint)
-                    {
-                        Debug.Log("Finished writing Phrase!");
-                        FinishedCurrentPhrasePrint = true;
-                    }
+                    var textBox = _dialogPanelAnimator.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
+                    
+                    PrintTime += Time.deltaTime;
 
-                    if (RewiredPlayer.GetButtonDown("Interact"))
-                    {
-                        CurrentPhraseSelected++;
-
-                        if (CurrentPhraseSelected >= AllConversations[CurrentConversationIndex].ReturnConversationSize())
+                    if(_currentChar < PhraseToPrint.Length){
+                        if(PrintTime >= PrintTimeTarget)
                         {
-                            EndConversation();
+                            textBox.text += PhraseToPrint[_currentChar];
+                            PrintTime = 0;
+                            _currentChar++;
                         }
-                        else
+
+                        if (_playerInput.GetButtonDown("Interact"))
                         {
-                            SelectedNextPhrase = false;
-                            FinishedCurrentPhrasePrint = false;
+                            textBox.text = PhraseToPrint;
+                            _currentChar = PhraseToPrint.Length;
+                        }
+                    }
+                    else
+                    {
+                        if (!_finishedCurrentPhrasePrint)
+                        {
+                            Debug.Log("Finished writing Phrase!");
+                            _finishedCurrentPhrasePrint = true;
+                        }
+
+                        if (_playerInput.GetButtonDown("Interact"))
+                        {
+                            _currentPhraseSelected++;
+
+                            if (_currentPhraseSelected >= AllConversations[_currentConversationIndex].ReturnConversationSize())
+                            {
+                                _finishConversation = true;
+                            }
+                            else
+                            {
+                                _selectedNextPhrase = false;
+                                _finishedCurrentPhrasePrint = false;
+                            }
                         }
                     }
                 }
+            }
+            else
+            {
+                EndConversation();
             }
         }
     }
 
     public void StartNewConversation(int index)
     {
-        ConversationStarted = true;
+        _conversationStarted = true;
 
-        CurrentConversationIndex = index;
+        _currentConversationIndex = index;
 
-        DialogPanelAnimator.SetBool("ShowUp", true);
-
-        //Debug.Log("Starting conversation [" + index + "] - " + AllConversations[index].ReturnConversationName() + "!");
+        _dialogPanelAnimator.SetBool("ShowUp", true);
     }
 
     private void EndConversation()
     {
-        ConversationStarted = false;
+        _dialogPanelAnimator.SetBool("ShowUp", false);
 
-        CurrentPhraseSelected = 0;
+        if(_dialogPanelAnimator.gameObject.transform.localScale.x <= 0.75f)
+        {
+            Debug.Log("Ending conversation...");
 
-        SelectedNextPhrase = false;
+            _conversationStarted = false;
 
-        FinishedCurrentPhrasePrint = false;
+            _currentPhraseSelected = 0;
 
-        DialogPanelAnimator.SetBool("ShowUp", false);
+            _selectedNextPhrase = false;
 
-        Debug.Log("Ending conversation...");
+            _finishedCurrentPhrasePrint = false;
+
+            _finishConversation = false;
+        }
     }
 
     public bool ReturnConversationStatus()
     {
-        return ConversationStarted;
+        return _conversationStarted;
     }
 
     private void ParseTextIntoConversations()
     {
-        string[] extractedText = CsvFile.text.Split(new string[] {";","\n"}, System.StringSplitOptions.RemoveEmptyEntries);
+        string[] extractedText = _csvFile.text.Split(new string[] {";","\n"}, System.StringSplitOptions.RemoveEmptyEntries);
     
         bool dialogFound = false, stillDialog = true;
 
